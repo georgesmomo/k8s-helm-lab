@@ -1,0 +1,16 @@
+# Symptôme : CrashLoopBackOff, RESTARTS qui augmente. Cause : l'app sort en erreur au démarrage.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: crashloop, namespace: debug}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: crashloop}}
+  template:
+    metadata: {labels: {app: crashloop}}
+    spec:
+      containers:
+        - name: app
+          image: kubelab:1.0.0
+          env:
+            - {name: REQUIRE_DATABASE_URL, value: "true"}   # DATABASE_URL oubliée
+          resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}

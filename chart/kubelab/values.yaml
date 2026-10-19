@@ -1,0 +1,91 @@
+# Valeurs par défaut. Surcharge par environnement : -f values-prod.yaml ou --set clé=valeur.
+
+replicaCount: 2
+
+image:
+  repository: kubelab
+  tag: ""                 # vide = .Chart.AppVersion
+  pullPolicy: IfNotPresent
+  digest: ""              # ex. sha256:… (prioritaire sur le tag si renseigné)
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+message: "Bonjour depuis Helm"
+config:
+  app.properties: |
+    log.level=info
+    feature.newCheckout=false
+
+# Secret : soit créé par le chart (dev), soit existant (prod, géré par External Secrets).
+secret:
+  create: true
+  existingSecret: ""
+  databaseUrl: "postgres://kubelab:change-me@db:5432/kubelab"
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}         # ex. IRSA / Workload Identity : rôle cloud lié au ServiceAccount
+  automountToken: false
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+probes:
+  startup:  {path: /healthz, periodSeconds: 2, failureThreshold: 30}
+  readiness: {path: /readyz, periodSeconds: 5}
+  liveness: {path: /healthz, periodSeconds: 10, failureThreshold: 3}
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+networkPolicy:
+  enabled: false
+  allowFromNamespaces: []   # ex. [gateway-system]
+
+httpRoute:
+  enabled: false
+  gateway: {name: public, namespace: gateway-system}
+  hostnames: []
+
+migrations:
+  enabled: true             # hook pre-install/pre-upgrade : Job de migration avant les nouveaux pods
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+topologySpread: true

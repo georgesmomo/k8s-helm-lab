@@ -1,0 +1,40 @@
+{{- if .Values.migrations.enabled }}
+# Hook : Helm crée ce Job AVANT d'installer/mettre à jour le Deployment et attend sa réussite.
+# Si la migration échoue, la release échoue et les nouveaux pods ne sont pas déployés.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "kubelab.fullname" . }}-migrate
+  labels:
+    {{- include "kubelab.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        {{- include "kubelab.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: migrate
+          image: {{ include "kubelab.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["migrate"]
+          env:
+            - name: FROM_VERSION
+              value: {{ .Release.Revision | quote }}
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {memory: 64Mi}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+{{- end }}

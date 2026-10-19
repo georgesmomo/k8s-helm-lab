@@ -1,0 +1,23 @@
+# Symptôme : le Service répond « connection refused » / timeout ; ENDPOINTS vide.
+# Cause : le selector du Service ne correspond pas aux labels des pods.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: web, namespace: debug}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: web}}
+  template:
+    metadata: {labels: {app: web}}
+    spec:
+      containers:
+        - name: app
+          image: kubelab:1.0.0
+          ports: [{name: http, containerPort: 8080}]
+          resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: web, namespace: debug}
+spec:
+  selector: {app: website}          # faute de frappe
+  ports: [{port: 80, targetPort: http}]

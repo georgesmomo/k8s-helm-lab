@@ -1,0 +1,11 @@
+# kind create cluster --name lab --config kind/cluster.yaml
+# 1 control plane + 2 workers : assez pour voir le scheduling, les drains et les PDB.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:            # accès HTTP depuis ta machine vers le cluster (NodePort 30080)
+      - containerPort: 30080
+        hostPort: 8080
+  - role: worker
+  - role: worker

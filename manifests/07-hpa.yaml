@@ -1,0 +1,23 @@
+# Autoscaling horizontal sur l'utilisation CPU (nécessite metrics-server).
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kubelab
+  namespace: kubelab
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kubelab
+  minReplicas: 3
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70        # % des requests CPU
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60

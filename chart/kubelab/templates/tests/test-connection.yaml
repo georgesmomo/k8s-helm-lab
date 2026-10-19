@@ -1,0 +1,26 @@
+# « helm test <release> » lance ce pod : il appelle le Service et vérifie la réponse.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "kubelab.fullname" . }}-test
+  labels:
+    {{- include "kubelab.labels" . | nindent 4 }}
+    role: client
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    {{- toYaml .Values.podSecurityContext | nindent 4 }}
+  containers:
+    - name: check
+      image: {{ include "kubelab.image" . | quote }}
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      args: ["check", "http://{{ include "kubelab.fullname" . }}:{{ .Values.service.port }}/", {{ .Values.message | quote }}]
+      resources:
+        requests: {cpu: 10m, memory: 16Mi}
+        limits: {memory: 64Mi}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}

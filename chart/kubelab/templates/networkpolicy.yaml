@@ -1,0 +1,24 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "kubelab.fullname" . }}
+  labels:
+    {{- include "kubelab.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "kubelab.selectorLabels" . | nindent 6 }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: {}            # pods du même namespace
+        {{- range .Values.networkPolicy.allowFromNamespaces }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . }}
+        {{- end }}
+      ports:
+        - port: 8080
+          protocol: TCP
+{{- end }}

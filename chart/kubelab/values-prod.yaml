@@ -1,0 +1,21 @@
+# Surcharges production : plus de réplicas, autoscaling, secret externe, exposition HTTP.
+replicaCount: 3
+message: "kubelab en production"
+secret:
+  create: false
+  existingSecret: kubelab-db        # créé par External Secrets Operator
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+pdb:
+  minAvailable: 2
+networkPolicy:
+  enabled: true
+  allowFromNamespaces: [gateway-system]
+httpRoute:
+  enabled: true
+  hostnames: ["kubelab.example.com"]
+resources:
+  requests: {cpu: 100m, memory: 64Mi}
+  limits: {memory: 256Mi}

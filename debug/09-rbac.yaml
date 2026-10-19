@@ -1,0 +1,5 @@
+# Symptôme : « forbidden: User "system:serviceaccount:debug:reader" cannot list resource "pods" ».
+# Cause : le ServiceAccount n'a aucun Role. Correctif : Role + RoleBinding (voir fixes/09-rbac.yaml).
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: reader, namespace: debug}

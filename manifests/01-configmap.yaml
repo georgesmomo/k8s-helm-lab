@@ -1,0 +1,13 @@
+# Configuration non sensible : injectée en variables d'environnement et montée en fichier.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubelab-config
+  namespace: kubelab
+  labels:
+    app.kubernetes.io/name: kubelab
+data:
+  MESSAGE: "Bonjour depuis Kubernetes"
+  app.properties: |
+    log.level=info
+    feature.newCheckout=false

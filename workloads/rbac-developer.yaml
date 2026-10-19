@@ -1,0 +1,26 @@
+# RBAC : un développeur peut tout lire et redémarrer des déploiements dans kubelab, pas lire les Secrets.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: {name: developer, namespace: kubelab}
+rules:
+  - apiGroups: ["", "apps", "batch", "autoscaling", "policy"]
+    resources: ["pods", "pods/log", "services", "endpoints", "configmaps", "deployments", "replicasets", "statefulsets", "jobs", "cronjobs", "horizontalpodautoscalers", "poddisruptionbudgets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["patch"]               # kubectl rollout restart
+  - apiGroups: [""]
+    resources: ["pods/portforward"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: {name: developers, namespace: kubelab}
+subjects:
+  - kind: Group                    # groupe venant de l'OIDC de l'entreprise (Entra ID, Keycloak, Okta…)
+    name: team-kubelab
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: developer
+  apiGroup: rbac.authorization.k8s.io

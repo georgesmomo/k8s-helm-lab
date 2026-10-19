@@ -1,0 +1,41 @@
+# Job : exécuter une tâche jusqu'au succès. CronJob : la planifier.
+apiVersion: batch/v1
+kind: Job
+metadata: {name: smoke-test, namespace: kubelab}
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 120
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata: {labels: {role: client}}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: check
+          image: kubelab:1.0.0
+          args: ["check", "http://kubelab.kubelab.svc.cluster.local/", "Bonjour"]
+          resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}
+          securityContext: {runAsNonRoot: true, runAsUser: 65532, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}, seccompProfile: {type: RuntimeDefault}}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata: {name: nightly-check, namespace: kubelab}
+spec:
+  schedule: "0 3 * * *"
+  timeZone: Europe/Paris
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata: {labels: {role: client}}
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: check
+              image: kubelab:1.0.0
+              args: ["check", "http://kubelab.kubelab.svc.cluster.local/healthz"]
+              resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}
+              securityContext: {runAsNonRoot: true, runAsUser: 65532, allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}, seccompProfile: {type: RuntimeDefault}}

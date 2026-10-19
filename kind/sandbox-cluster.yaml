@@ -1,0 +1,23 @@
+# Même topologie que kind/cluster.yaml du labo + 2 ajustements propres à ce bac à sable :
+# hôte en cgroup v1 (failCgroupV1: false), sans CAP_SYS_RESOURCE (restrict_oom_score_adj)
+# et miroir de registre local (pas d'accès Docker Hub ici).
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 30080
+        hostPort: 8080
+  - role: worker
+  - role: worker
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry]
+      config_path = "/etc/containerd/certs.d"
+  - |-
+    [plugins."io.containerd.grpc.v1.cri"]
+      restrict_oom_score_adj = true
+kubeadmConfigPatches:
+  - |
+    kind: KubeletConfiguration
+    failCgroupV1: false

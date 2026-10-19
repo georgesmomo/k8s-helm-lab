@@ -1,0 +1,36 @@
+# StatefulSet : identité stable (kubelab-db-0, -1…), un volume par pod, ordre de démarrage garanti.
+apiVersion: v1
+kind: Service
+metadata: {name: kubelab-db, namespace: kubelab}
+spec:
+  clusterIP: None              # Service « headless » : un enregistrement DNS par pod
+  selector: {app: kubelab-db}
+  ports: [{name: http, port: 8080}]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: {name: kubelab-db, namespace: kubelab}
+spec:
+  serviceName: kubelab-db
+  replicas: 2
+  selector: {matchLabels: {app: kubelab-db}}
+  template:
+    metadata: {labels: {app: kubelab-db}}
+    spec:
+      securityContext: {runAsNonRoot: true, runAsUser: 65532, fsGroup: 65532, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: app
+          image: kubelab:1.0.0
+          env:
+            - {name: DATA_DIR, value: /data}
+            - name: POD_NAME
+              valueFrom: {fieldRef: {fieldPath: metadata.name}}
+          ports: [{name: http, containerPort: 8080}]
+          volumeMounts: [{name: data, mountPath: /data}]
+          resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: {requests: {storage: 100Mi}}

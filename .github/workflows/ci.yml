@@ -1,0 +1,108 @@
+# CI du labo : rejoue toute la formation sur un vrai cluster kind éphémère (3 nœuds).
+name: lab
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Tests app + lint chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: app/go.mod
+      - name: go vet + test
+        working-directory: app
+        run: go vet ./... && go test ./...
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+      - name: helm lint (dev + prod)
+        run: |
+          helm lint chart/kubelab
+          helm lint chart/kubelab -f chart/kubelab/values-prod.yaml
+      - name: Rendu + validation des schémas (kubeconform)
+        run: |
+          helm template demo chart/kubelab > rendered.yaml
+          helm template demo chart/kubelab -f chart/kubelab/values-prod.yaml > rendered-prod.yaml
+          docker run --rm -v "$PWD:/w" -w /w ghcr.io/yannh/kubeconform:v0.8.0-alpine \
+            -strict -summary -ignore-missing-schemas rendered.yaml rendered-prod.yaml manifests/0*.yaml workloads/*.yaml
+
+  e2e:
+    name: Cluster kind + kubectl + Helm + debug
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build de l'image
+        run: docker build -t kubelab:1.0.0 --build-arg VERSION=1.0.0 app
+
+      - name: Cluster kind (1 control plane + 2 workers)
+        uses: helm/kind-action@1544676c07bb3570fcb70166beaa07c4528fd4aa # v1.15.1
+        with:
+          cluster_name: lab
+          config: kind/cluster.yaml
+
+      - name: Charger l'image dans les nœuds
+        run: kind load docker-image kubelab:1.0.0 --name lab
+
+      - name: Partie 1 - kubectl apply
+        run: |
+          kubectl apply -k manifests/
+          kubectl -n kubelab rollout status deploy/kubelab --timeout=120s
+          kubectl apply -f workloads/job-cronjob.yaml
+          kubectl -n kubelab wait --for=condition=complete job/smoke-test --timeout=120s
+          kubectl -n kubelab logs job/smoke-test
+          kubectl -n kubelab get all,pdb,hpa,networkpolicy,resourcequota
+
+      - name: Partie 1 bis - NetworkPolicy (seul le pod role=client passe)
+        run: |
+          kubectl apply -f workloads/netpol-test.yaml
+          kubectl -n kubelab wait --for=jsonpath='{.status.phase}'=Succeeded pod/probe-allowed --timeout=120s
+          kubectl -n kubelab wait --for=jsonpath='{.status.phase}'=Failed pod/probe-denied --timeout=240s
+          kubectl -n kubelab logs probe-allowed
+          kubectl -n kubelab logs probe-denied
+          kubectl apply -f workloads/psa-test.yaml && exit 1 || echo "Pod Security a bien refusé le pod root"
+
+      - name: Partie 2 - Helm install, test, upgrade, rollback
+        run: |
+          helm install demo chart/kubelab -n kubelab-helm --create-namespace --wait --timeout 3m
+          helm test demo -n kubelab-helm --logs
+          helm upgrade demo chart/kubelab -n kubelab-helm --set message="Version 2" --wait
+          helm history demo -n kubelab-helm
+          helm rollback demo 1 -n kubelab-helm --wait
+          helm get values demo -n kubelab-helm --all | head -20
+
+      - name: Partie 3 - scénarios de panne (on vérifie que chaque panne apparaît bien)
+        run: |
+          kubectl apply -f debug/00-namespace.yaml
+          for f in debug/0[1-9]-*.yaml debug/10-*.yaml; do kubectl apply -f "$f"; done
+          sleep 45
+          kubectl -n debug get pods -o wide
+          kubectl -n debug get pods -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.status.containerStatuses[0].state.waiting.reason}{"\n"}{end}' | tee states.txt
+          grep -q ImagePullBackOff states.txt || grep -q ErrImagePull states.txt
+          grep -q CrashLoopBackOff states.txt
+          grep -q CreateContainerConfigError states.txt
+          kubectl -n debug get endpointslices -l kubernetes.io/service-name=web
+          ! kubectl auth can-i list pods --as=system:serviceaccount:debug:reader -n debug
+          kubectl apply -f debug/fixes/09-rbac.yaml
+          kubectl auth can-i list pods --as=system:serviceaccount:debug:reader -n debug
+
+      - name: État final du cluster
+        if: always()
+        run: |
+          kubectl get nodes -o wide
+          kubectl get pods -A -o wide
+          kubectl get events -A --sort-by=.lastTimestamp | tail -40

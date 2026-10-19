@@ -1,0 +1,14 @@
+# Symptôme : Pending sans fin. Cause : aucune node n'a 64 CPU libres (requests trop élevées).
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: too-big, namespace: debug}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: too-big}}
+  template:
+    metadata: {labels: {app: too-big}}
+    spec:
+      containers:
+        - name: app
+          image: kubelab:1.0.0
+          resources: {requests: {cpu: "64", memory: 16Mi}, limits: {memory: 64Mi}}

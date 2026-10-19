@@ -1,0 +1,31 @@
+# Zéro confiance réseau : tout est refusé en entrée, puis on ouvre le strict nécessaire.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: kubelab
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-http-to-kubelab
+  namespace: kubelab
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: kubelab
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kubelab
+          podSelector:
+            matchLabels:
+              role: client
+      ports:
+        - port: 8080
+          protocol: TCP

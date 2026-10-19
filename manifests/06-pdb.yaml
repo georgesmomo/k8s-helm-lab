@@ -1,0 +1,11 @@
+# Lors d'un drain de nœud ou d'une mise à jour du cluster : garder au moins 2 pods.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: kubelab
+  namespace: kubelab
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kubelab

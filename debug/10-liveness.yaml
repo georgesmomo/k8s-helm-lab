@@ -1,0 +1,21 @@
+# Symptôme : redémarrages réguliers alors que l'app va bien. Cause : liveness trop agressive
+# (timeout 1 s, pas de startupProbe) sur une app qui démarre en 8 s.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: slow-start, namespace: debug}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: slow-start}}
+  template:
+    metadata: {labels: {app: slow-start}}
+    spec:
+      containers:
+        - name: app
+          image: kubelab:1.0.0
+          env: [{name: STARTUP_DELAY_SECONDS, value: "8"}]
+          livenessProbe:
+            httpGet: {path: /readyz, port: 8080}   # erreur : liveness sur readyz
+            initialDelaySeconds: 0
+            periodSeconds: 2
+            failureThreshold: 2
+          resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}

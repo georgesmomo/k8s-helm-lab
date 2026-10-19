@@ -1,0 +1,16 @@
+# Symptôme : CreateContainerConfigError. Cause : la ConfigMap référencée n'existe pas.
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: no-config, namespace: debug}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: no-config}}
+  template:
+    metadata: {labels: {app: no-config}}
+    spec:
+      containers:
+        - name: app
+          image: kubelab:1.0.0
+          envFrom:
+            - configMapRef: {name: app-settings}
+          resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}

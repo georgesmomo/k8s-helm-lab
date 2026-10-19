@@ -1,0 +1,15 @@
+# Symptôme : le conteneur redémarre, Last State: Terminated, Reason: OOMKilled, Exit Code 137.
+# Déclencheur : kubectl -n debug exec deploy/oom -- /kubelab check http://localhost:8080/stress/memory?mb=100
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: oom, namespace: debug}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: oom}}
+  template:
+    metadata: {labels: {app: oom}}
+    spec:
+      containers:
+        - name: app
+          image: kubelab:1.0.0
+          resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 48Mi}}

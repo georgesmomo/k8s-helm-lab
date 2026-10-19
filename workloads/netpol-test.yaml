@@ -1,0 +1,32 @@
+# Deux pods de test identiques, sauf le label role: client.
+# Avec la NetworkPolicy du labo, seul probe-allowed doit joindre le Service kubelab.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: probe-allowed
+  namespace: kubelab
+  labels: {role: client}
+spec:
+  restartPolicy: Never
+  securityContext: {runAsNonRoot: true, runAsUser: 65532, seccompProfile: {type: RuntimeDefault}}
+  containers:
+    - name: check
+      image: kubelab:1.0.0
+      args: ["check", "http://kubelab/healthz"]
+      resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: probe-denied
+  namespace: kubelab
+spec:
+  restartPolicy: Never
+  securityContext: {runAsNonRoot: true, runAsUser: 65532, seccompProfile: {type: RuntimeDefault}}
+  containers:
+    - name: check
+      image: kubelab:1.0.0
+      args: ["check", "http://kubelab/healthz"]
+      resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}
+      securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}

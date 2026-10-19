@@ -1,0 +1,22 @@
+# Symptôme : pod Pending, PVC Pending. Cause : StorageClass inexistante.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: data, namespace: debug}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: fast-ssd
+  resources: {requests: {storage: 1Gi}}
+---
+apiVersion: v1
+kind: Pod
+metadata: {name: needs-volume, namespace: debug}
+spec:
+  containers:
+    - name: app
+      image: kubelab:1.0.0
+      env: [{name: DATA_DIR, value: /data}]
+      volumeMounts: [{name: data, mountPath: /data}]
+      resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}
+  volumes:
+    - name: data
+      persistentVolumeClaim: {claimName: data}

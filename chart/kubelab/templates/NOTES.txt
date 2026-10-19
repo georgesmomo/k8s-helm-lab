@@ -1,0 +1,15 @@
+kubelab {{ .Chart.AppVersion }} déployé dans le namespace {{ .Release.Namespace }} (release « {{ .Release.Name }} », révision {{ .Release.Revision }}).
+
+1. Suivre le déploiement :
+   kubectl -n {{ .Release.Namespace }} rollout status deploy/{{ include "kubelab.fullname" . }}
+
+2. Tester en local :
+   kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "kubelab.fullname" . }} 8080:{{ .Values.service.port }}
+   curl http://localhost:8080/
+
+3. Lancer les tests du chart :
+   helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if not .Values.secret.create }}
+
+ATTENTION : le Secret « {{ include "kubelab.secretName" . }} » doit exister (External Secrets, Vault…).
+{{- end }}

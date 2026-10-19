@@ -1,0 +1,16 @@
+# Adresse stable (IP virtuelle + nom DNS kubelab.kubelab.svc.cluster.local) devant les pods prêts.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubelab
+  namespace: kubelab
+  labels:
+    app.kubernetes.io/name: kubelab
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: kubelab
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
