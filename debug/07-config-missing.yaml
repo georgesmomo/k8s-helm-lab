@@ -1,4 +1,4 @@
-# Symptôme : CreateContainerConfigError. Cause : la ConfigMap référencée n'existe pas.
+# Symptom: CreateContainerConfigError. Cause: the referenced ConfigMap does not exist.
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: no-config, namespace: debug}

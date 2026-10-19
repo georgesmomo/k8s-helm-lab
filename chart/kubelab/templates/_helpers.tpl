@@ -1,9 +1,9 @@
-{{/* Nom court de l'application (tronqué à 63 caractères : limite DNS des noms Kubernetes). */}}
+{{/* Short app name (truncated to 63 characters: the DNS limit for Kubernetes names). */}}
 {{- define "kubelab.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/* Nom complet : <release>-<chart>, sauf si la release contient déjà le nom du chart. */}}
+{{/* Full name: <release>-<chart>, unless the release name already contains the chart name. */}}
 {{- define "kubelab.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
@@ -21,7 +21,7 @@
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/* Labels recommandés (app.kubernetes.io/*) posés sur toutes les ressources. */}}
+{{/* Recommended labels (app.kubernetes.io/*) set on every resource. */}}
 {{- define "kubelab.labels" -}}
 helm.sh/chart: {{ include "kubelab.chart" . }}
 {{ include "kubelab.selectorLabels" . }}
@@ -30,7 +30,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/part-of: k8s-helm-lab
 {{- end }}
 
-{{/* Labels de sélection : stables, ne jamais y mettre la version (le selector est immuable). */}}
+{{/* Selector labels: stable, never put the version here (a Deployment selector is immutable). */}}
 {{- define "kubelab.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "kubelab.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
@@ -48,7 +48,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Values.secret.existingSecret }}{{ .Values.secret.existingSecret }}{{ else }}{{ include "kubelab.fullname" . }}{{ end }}
 {{- end }}
 
-{{/* Image : le digest, s'il est fourni, l'emporte sur le tag (déploiement immuable). */}}
+{{/* Image: the digest, when provided, wins over the tag (immutable deployment). */}}
 {{- define "kubelab.image" -}}
 {{- if .Values.image.digest }}
 {{- printf "%s@%s" .Values.image.repository .Values.image.digest }}

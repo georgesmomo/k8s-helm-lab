@@ -1,4 +1,4 @@
-# Symptôme : Pending sans fin. Cause : aucune node n'a 64 CPU libres (requests trop élevées).
+# Symptom: Pending forever. Cause: no node has 64 free CPUs (requests too high).
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: too-big, namespace: debug}

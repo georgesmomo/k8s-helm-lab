@@ -6,7 +6,7 @@ metadata:
     {{- include "kubelab.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}   {{- /* avec HPA, c'est le HPA qui pilote les réplicas */}}
+  replicas: {{ .Values.replicaCount }}   {{- /* with an HPA, the HPA owns the replica count */}}
   {{- end }}
   revisionHistoryLimit: 5
   selector:
@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       annotations:
-        # Change quand la ConfigMap change : force un rolling update (sinon les pods gardent l'ancienne config).
+        # Changes when the ConfigMap changes: forces a rolling update (otherwise pods keep the old config).
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}

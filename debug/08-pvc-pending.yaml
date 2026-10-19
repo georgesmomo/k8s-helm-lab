@@ -1,4 +1,4 @@
-# Symptôme : pod Pending, PVC Pending. Cause : StorageClass inexistante.
+# Symptom: pod Pending, PVC Pending. Cause: the StorageClass does not exist.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata: {name: data, namespace: debug}

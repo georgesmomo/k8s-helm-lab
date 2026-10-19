@@ -1,4 +1,4 @@
-# Symptôme : Running mais READY 0/1, le Service n'envoie aucun trafic. Cause : mauvais chemin de sonde.
+# Symptom: Running but READY 0/1, the Service sends no traffic. Cause: wrong probe path.
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: not-ready, namespace: debug}
@@ -12,6 +12,6 @@ spec:
         - name: app
           image: kubelab:1.0.0
           readinessProbe:
-            httpGet: {path: /ready, port: 8080}     # l'app expose /readyz
+            httpGet: {path: /ready, port: 8080}     # the app exposes /readyz
             periodSeconds: 3
           resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}

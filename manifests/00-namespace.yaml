@@ -1,10 +1,10 @@
-# Un namespace par application et par environnement : isolation des droits, quotas et politiques réseau.
+# One namespace per application and environment: isolates permissions, quotas and network policies.
 apiVersion: v1
 kind: Namespace
 metadata:
   name: kubelab
   labels:
-    # Pod Security Admission : refuse les pods privilégiés, root, hostPath…
+    # Pod Security Admission: rejects privileged pods, root, hostPath...
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: latest
     pod-security.kubernetes.io/warn: restricted

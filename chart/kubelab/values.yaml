@@ -1,12 +1,12 @@
-# Valeurs par défaut. Surcharge par environnement : -f values-prod.yaml ou --set clé=valeur.
+# Default values. Override per environment: -f values-prod.yaml or --set key=value.
 
 replicaCount: 2
 
 image:
   repository: kubelab
-  tag: ""                 # vide = .Chart.AppVersion
+  tag: ""                 # empty = .Chart.AppVersion
   pullPolicy: IfNotPresent
-  digest: ""              # ex. sha256:… (prioritaire sur le tag si renseigné)
+  digest: ""              # e.g. sha256:... (wins over the tag when set)
 
 imagePullSecrets: []
 nameOverride: ""
@@ -18,7 +18,7 @@ config:
     log.level=info
     feature.newCheckout=false
 
-# Secret : soit créé par le chart (dev), soit existant (prod, géré par External Secrets).
+# Secret: either created by the chart (dev) or pre-existing (prod, managed by External Secrets).
 secret:
   create: true
   existingSecret: ""
@@ -27,7 +27,7 @@ secret:
 serviceAccount:
   create: true
   name: ""
-  annotations: {}         # ex. IRSA / Workload Identity : rôle cloud lié au ServiceAccount
+  annotations: {}         # e.g. IRSA / Workload Identity: cloud role bound to the ServiceAccount
   automountToken: false
 
 podAnnotations: {}
@@ -75,7 +75,7 @@ pdb:
 
 networkPolicy:
   enabled: false
-  allowFromNamespaces: []   # ex. [gateway-system]
+  allowFromNamespaces: []   # e.g. [gateway-system]
 
 httpRoute:
   enabled: false
@@ -83,7 +83,7 @@ httpRoute:
   hostnames: []
 
 migrations:
-  enabled: true             # hook pre-install/pre-upgrade : Job de migration avant les nouveaux pods
+  enabled: true             # pre-install/pre-upgrade hook: migration Job before the new pods
 
 nodeSelector: {}
 tolerations: []

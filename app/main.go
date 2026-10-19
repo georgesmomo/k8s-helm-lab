@@ -1,7 +1,7 @@
-// kubelab : petite API HTTP pensée pour apprendre Kubernetes.
-// Elle expose des sondes, des métriques et des points de « panne volontaire »
-// (CPU, mémoire, crash au démarrage) pour les scénarios de debug du labo.
-// Bibliothèque standard uniquement : l'image finale ne contient qu'un binaire.
+// kubelab: a small HTTP API designed for learning Kubernetes.
+// It exposes probes, metrics and "break it on purpose" endpoints
+// (CPU, memory, crash at startup) for the lab's debugging scenarios.
+// Standard library only: the final image contains a single binary.
 package main
 
 import (
@@ -22,7 +22,7 @@ import (
 	"time"
 )
 
-var version = "dev" // injecté au build : -ldflags "-X main.version=1.2.0"
+var version = "dev" // injected at build time: -ldflags "-X main.version=1.2.0"
 
 type app struct {
 	message  string
@@ -44,7 +44,7 @@ func env(k, def string) string {
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	// Sous-commandes utilisées par les Jobs et les hooks Helm.
+	// Subcommands used by the Jobs and the Helm hooks.
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "migrate":
@@ -102,7 +102,7 @@ func main() {
 		}
 	}()
 
-	// Arrêt propre : Kubernetes envoie SIGTERM, puis SIGKILL après terminationGracePeriodSeconds.
+	// Graceful shutdown: Kubernetes sends SIGTERM, then SIGKILL after terminationGracePeriodSeconds.
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	sig := <-stop
@@ -167,7 +167,7 @@ func (a *app) metrics(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintf(w, "# TYPE kubelab_info gauge\nkubelab_info{version=%q} 1\n", version)
 }
 
-// /stress/cpu?seconds=30 : occupe un cœur (déclenche le HPA).
+// /stress/cpu?seconds=30: keeps one core busy (triggers the HPA).
 func (a *app) stressCPU(w http.ResponseWriter, r *http.Request) {
 	s, _ := strconv.Atoi(r.URL.Query().Get("seconds"))
 	if s <= 0 || s > 300 {
@@ -181,7 +181,7 @@ func (a *app) stressCPU(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "cpu burned for %ds\n", s)
 }
 
-// /stress/memory?mb=300 : alloue et garde la mémoire (déclenche OOMKilled si > limite).
+// /stress/memory?mb=300: allocates and holds memory (triggers OOMKilled above the limit).
 func (a *app) stressMemory(w http.ResponseWriter, r *http.Request) {
 	mb, _ := strconv.Atoi(r.URL.Query().Get("mb"))
 	if mb <= 0 {
@@ -208,7 +208,7 @@ func migrate(log *slog.Logger) int {
 	return 0
 }
 
-// check URL [attendu] : utilisé par « helm test » et les Jobs de smoke test.
+// check URL [expected]: used by "helm test" and the smoke-test Jobs.
 func check(log *slog.Logger, args []string) int {
 	if len(args) == 0 {
 		log.Error("usage: kubelab check URL [texte-attendu]")

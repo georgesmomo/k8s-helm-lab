@@ -1,4 +1,4 @@
-# kubectl apply -k manifests/  (Kustomize est intégré à kubectl)
+# kubectl apply -k manifests/  (Kustomize is built into kubectl)
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: kubelab

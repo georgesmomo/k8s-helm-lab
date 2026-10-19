@@ -1,4 +1,4 @@
-# Lors d'un drain de nœud ou d'une mise à jour du cluster : garder au moins 2 pods.
+# During a node drain or a cluster upgrade: keep at least 2 pods running.
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:

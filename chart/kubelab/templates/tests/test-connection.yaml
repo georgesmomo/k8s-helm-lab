@@ -1,4 +1,4 @@
-# « helm test <release> » lance ce pod : il appelle le Service et vérifie la réponse.
+# "helm test <release>" runs this pod: it calls the Service and checks the answer.
 apiVersion: v1
 kind: Pod
 metadata:
@@ -8,7 +8,7 @@ metadata:
     role: client
   annotations:
     "helm.sh/hook": test
-    "helm.sh/hook-delete-policy": before-hook-creation   # garder le pod pour lire ses logs (helm test --logs)
+    "helm.sh/hook-delete-policy": before-hook-creation   # keep the pod so its logs can be read (helm test --logs)
 spec:
   restartPolicy: Never
   automountServiceAccountToken: false

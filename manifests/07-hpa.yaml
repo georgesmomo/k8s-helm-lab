@@ -1,4 +1,4 @@
-# Autoscaling horizontal sur l'utilisation CPU (nécessite metrics-server).
+# Horizontal autoscaling on CPU utilisation (requires metrics-server).
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -17,7 +17,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70        # % des requests CPU
+          averageUtilization: 70        # % of the CPU requests
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 60

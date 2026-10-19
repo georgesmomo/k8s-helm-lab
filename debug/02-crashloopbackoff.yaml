@@ -1,4 +1,4 @@
-# Symptôme : CrashLoopBackOff, RESTARTS qui augmente. Cause : l'app sort en erreur au démarrage.
+# Symptom: CrashLoopBackOff, RESTARTS keeps growing. Cause: the app exits with an error at startup.
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: crashloop, namespace: debug}
@@ -12,5 +12,5 @@ spec:
         - name: app
           image: kubelab:1.0.0
           env:
-            - {name: REQUIRE_DATABASE_URL, value: "true"}   # DATABASE_URL oubliée
+            - {name: REQUIRE_DATABASE_URL, value: "true"}   # DATABASE_URL forgotten
           resources: {requests: {cpu: 10m, memory: 16Mi}, limits: {memory: 64Mi}}

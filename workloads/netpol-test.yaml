@@ -1,5 +1,5 @@
-# Deux pods de test identiques, sauf le label role: client.
-# Avec la NetworkPolicy du labo, seul probe-allowed doit joindre le Service kubelab.
+# Two identical test pods, except for the label role: client.
+# With the lab NetworkPolicy, only probe-allowed may reach the kubelab Service.
 apiVersion: v1
 kind: Pod
 metadata:

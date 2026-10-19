@@ -1,6 +1,6 @@
 {{- if .Values.migrations.enabled }}
-# Hook : Helm crée ce Job AVANT d'installer/mettre à jour le Deployment et attend sa réussite.
-# Si la migration échoue, la release échoue et les nouveaux pods ne sont pas déployés.
+# Hook: Helm creates this Job BEFORE installing/upgrading the Deployment and waits for it to succeed.
+# If the migration fails, the release fails and the new pods are not rolled out.
 apiVersion: batch/v1
 kind: Job
 metadata:

@@ -1,4 +1,4 @@
-# Symptôme : ErrImagePull puis ImagePullBackOff. Cause : le tag n'existe pas.
+# Symptom: ErrImagePull, then ImagePullBackOff. Cause: the image tag does not exist.
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: bad-image, namespace: debug}

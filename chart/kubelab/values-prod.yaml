@@ -1,9 +1,9 @@
-# Surcharges production : plus de réplicas, autoscaling, secret externe, exposition HTTP.
+# Production overrides: more replicas, autoscaling, external secret, HTTP exposure.
 replicaCount: 3
 message: "kubelab en production"
 secret:
   create: false
-  existingSecret: kubelab-db        # créé par External Secrets Operator
+  existingSecret: kubelab-db        # created by External Secrets Operator
 autoscaling:
   enabled: true
   minReplicas: 3

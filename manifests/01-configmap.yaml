@@ -1,4 +1,4 @@
-# Configuration non sensible : injectée en variables d'environnement et montée en fichier.
+# Non-sensitive configuration: injected as environment variables and mounted as a file.
 apiVersion: v1
 kind: ConfigMap
 metadata:

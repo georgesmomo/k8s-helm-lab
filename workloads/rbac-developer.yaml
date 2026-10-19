@@ -1,4 +1,4 @@
-# RBAC : un développeur peut tout lire et redémarrer des déploiements dans kubelab, pas lire les Secrets.
+# RBAC: a developer can read everything and restart Deployments in kubelab, but cannot read Secrets.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata: {name: developer, namespace: kubelab}
@@ -17,7 +17,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata: {name: developers, namespace: kubelab}
 subjects:
-  - kind: Group                    # groupe venant de l'OIDC de l'entreprise (Entra ID, Keycloak, Okta…)
+  - kind: Group                    # group coming from the company OIDC provider (Entra ID, Keycloak, Okta...)
     name: team-kubelab
     apiGroup: rbac.authorization.k8s.io
 roleRef:

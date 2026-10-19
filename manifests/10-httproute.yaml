@@ -1,5 +1,5 @@
-# Exposition HTTP avec la Gateway API (successeur d'Ingress). Nécessite un contrôleur
-# (Envoy Gateway, Traefik, Cilium, NGINX Gateway Fabric…) et une Gateway nommée "public".
+# HTTP exposure with the Gateway API (the successor of Ingress). Requires a controller
+# (Envoy Gateway, Traefik, Cilium, NGINX Gateway Fabric...) and a Gateway named "public".
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

@@ -1,9 +1,9 @@
 apiVersion: v2
 name: kubelab
-description: API kubelab packagée avec les bonnes pratiques d'entreprise (sondes, sécurité, HPA, PDB, NetworkPolicy, hooks, tests).
+description: The kubelab API packaged with enterprise best practices (probes, security, HPA, PDB, NetworkPolicy, hooks, tests).
 type: application
-version: 0.1.0          # version du CHART (à incrémenter à chaque changement du chart)
-appVersion: "1.0.0"     # version de l'APPLICATION (tag d'image par défaut)
+version: 0.1.0          # version of the CHART (bump it on every chart change)
+appVersion: "1.0.0"     # version of the APPLICATION (default image tag)
 kubeVersion: ">=1.29.0-0"
 keywords: [kubernetes, helm, lab]
 maintainers:

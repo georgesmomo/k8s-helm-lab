@@ -1,5 +1,5 @@
-# Symptôme : redémarrages réguliers alors que l'app va bien. Cause : liveness trop agressive
-# (timeout 1 s, pas de startupProbe) sur une app qui démarre en 8 s.
+# Symptom: regular restarts although the app is fine. Cause: an aggressive liveness probe
+# (1 s timeout, no startupProbe) on an app that takes 8 s to start.
 apiVersion: apps/v1
 kind: Deployment
 metadata: {name: slow-start, namespace: debug}
@@ -14,7 +14,7 @@ spec:
           image: kubelab:1.0.0
           env: [{name: STARTUP_DELAY_SECONDS, value: "8"}]
           livenessProbe:
-            httpGet: {path: /readyz, port: 8080}   # erreur : liveness sur readyz
+            httpGet: {path: /readyz, port: 8080}   # mistake: liveness on /readyz
             initialDelaySeconds: 0
             periodSeconds: 2
             failureThreshold: 2

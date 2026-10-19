@@ -1,4 +1,4 @@
-# Ce pod ne respecte pas le profil restricted : le namespace kubelab doit le refuser.
+# This pod violates the restricted profile: the kubelab namespace must reject it.
 apiVersion: v1
 kind: Pod
 metadata:

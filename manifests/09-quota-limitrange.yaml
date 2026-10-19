@@ -1,4 +1,4 @@
-# Garde-fous de namespace : plafond global (quota) et valeurs par défaut par conteneur (LimitRange).
+# Namespace guardrails: an overall ceiling (quota) and per-container defaults (LimitRange).
 apiVersion: v1
 kind: ResourceQuota
 metadata:

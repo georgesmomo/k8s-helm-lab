@@ -1,9 +1,9 @@
-# StatefulSet : identité stable (kubelab-db-0, -1…), un volume par pod, ordre de démarrage garanti.
+# StatefulSet: stable identity (kubelab-db-0, -1...), one volume per pod, guaranteed startup order.
 apiVersion: v1
 kind: Service
 metadata: {name: kubelab-db, namespace: kubelab}
 spec:
-  clusterIP: None              # Service « headless » : un enregistrement DNS par pod
+  clusterIP: None              # "headless" Service: one DNS record per pod
   selector: {app: kubelab-db}
   ports: [{name: http, port: 8080}]
 ---

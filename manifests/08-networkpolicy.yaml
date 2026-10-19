@@ -1,4 +1,4 @@
-# Zéro confiance réseau : tout est refusé en entrée, puis on ouvre le strict nécessaire.
+# Zero-trust networking: deny all ingress, then open only what is needed.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:

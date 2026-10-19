@@ -1,4 +1,4 @@
-# Job : exécuter une tâche jusqu'au succès. CronJob : la planifier.
+# Job: run a task until it succeeds. CronJob: schedule it.
 apiVersion: batch/v1
 kind: Job
 metadata: {name: smoke-test, namespace: kubelab}

@@ -1,4 +1,4 @@
-# Adresse stable (IP virtuelle + nom DNS kubelab.kubelab.svc.cluster.local) devant les pods prêts.
+# Stable address (virtual IP + DNS name kubelab.kubelab.svc.cluster.local) in front of the ready pods.
 apiVersion: v1
 kind: Service
 metadata:

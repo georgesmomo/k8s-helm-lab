@@ -11,12 +11,12 @@ spec:
   replicas: 3
   revisionHistoryLimit: 5
   selector:
-    matchLabels:                      # immuable après création : doit matcher les labels du template
+    matchLabels:                      # immutable after creation: must match the template labels
       app.kubernetes.io/name: kubelab
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0               # jamais moins de 3 pods prêts pendant une mise à jour
+      maxUnavailable: 0               # never fewer than 3 ready pods during an update
       maxSurge: 1
   template:
     metadata:
@@ -34,7 +34,7 @@ spec:
         fsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
-      topologySpreadConstraints:      # répartir les réplicas sur les nœuds
+      topologySpreadConstraints:      # spread the replicas across nodes
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
           whenUnsatisfiable: ScheduleAnyway
@@ -43,7 +43,7 @@ spec:
               app.kubernetes.io/name: kubelab
       containers:
         - name: kubelab
-          image: kubelab:1.0.0   # chargée dans kind ; en entreprise : registre privé + tag immuable ou digest
+          image: kubelab:1.0.0   # loaded into kind; in a company: private registry + immutable tag or digest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -61,7 +61,7 @@ spec:
                   key: DATABASE_URL
             - name: CONFIG_FILE
               value: /etc/kubelab/app.properties
-            - name: POD_NAME              # Downward API : le pod connaît son nom et son nœud
+            - name: POD_NAME              # Downward API: the pod knows its name and node
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
@@ -70,19 +70,19 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           resources:
-            requests:                     # ce que le scheduler réserve
+            requests:                     # what the scheduler reserves
               cpu: 50m
               memory: 32Mi
-            limits:                       # plafond : au-delà de la mémoire, OOMKilled
+            limits:                       # ceiling: above the memory limit, OOMKilled
               memory: 128Mi
           startupProbe:
             httpGet: {path: /healthz, port: http}
             periodSeconds: 2
             failureThreshold: 30
-          readinessProbe:                 # retire le pod du Service s'il échoue
+          readinessProbe:                 # removes the pod from the Service when it fails
             httpGet: {path: /readyz, port: http}
             periodSeconds: 5
-          livenessProbe:                  # redémarre le conteneur s'il échoue
+          livenessProbe:                  # restarts the container when it fails
             httpGet: {path: /healthz, port: http}
             periodSeconds: 10
             failureThreshold: 3

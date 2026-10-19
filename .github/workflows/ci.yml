@@ -1,4 +1,4 @@
-# CI du labo : rejoue toute la formation sur un vrai cluster kind éphémère (3 nœuds).
+# Lab CI: replays the whole course on a real, ephemeral kind cluster (3 nodes).
 name: lab
 
 on:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   static:
-    name: Tests app + lint chart
+    name: App tests + chart lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -28,11 +28,11 @@ jobs:
         working-directory: app
         run: go vet ./... && go test ./...
       - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
-      - name: helm lint (dev + prod)
+      - name: helm lint (dev + prod values)
         run: |
           helm lint chart/kubelab
           helm lint chart/kubelab -f chart/kubelab/values-prod.yaml
-      - name: Rendu + validation des schémas (kubeconform)
+      - name: Render + schema validation (kubeconform)
         run: |
           helm template demo chart/kubelab > rendered.yaml
           helm template demo chart/kubelab -f chart/kubelab/values-prod.yaml > rendered-prod.yaml
@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Build de l'image
+      - name: Build the image
         run: docker build -t kubelab:1.0.0 --build-arg VERSION=1.0.0 app
 
       - name: Cluster kind (1 control plane + 2 workers)
@@ -56,10 +56,10 @@ jobs:
           cluster_name: lab
           config: kind/cluster.yaml
 
-      - name: Charger l'image dans les nœuds
+      - name: Load the image into the nodes
         run: kind load docker-image kubelab:1.0.0 --name lab
 
-      - name: Partie 1 - kubectl apply
+      - name: Part 1 - kubectl apply
         run: |
           kubectl apply -k manifests/
           kubectl -n kubelab rollout status deploy/kubelab --timeout=120s
@@ -68,16 +68,16 @@ jobs:
           kubectl -n kubelab logs job/smoke-test
           kubectl -n kubelab get all,pdb,hpa,networkpolicy,resourcequota
 
-      - name: Partie 1 bis - NetworkPolicy (seul le pod role=client passe)
+      - name: Part 1b - NetworkPolicy (only the role=client pod gets through)
         run: |
           kubectl apply -f workloads/netpol-test.yaml
           kubectl -n kubelab wait --for=jsonpath='{.status.phase}'=Succeeded pod/probe-allowed --timeout=120s
           kubectl -n kubelab wait --for=jsonpath='{.status.phase}'=Failed pod/probe-denied --timeout=240s
           kubectl -n kubelab logs probe-allowed
           kubectl -n kubelab logs probe-denied
-          kubectl apply -f workloads/psa-test.yaml && exit 1 || echo "Pod Security a bien refusé le pod root"
+          kubectl apply -f workloads/psa-test.yaml && exit 1 || echo "Pod Security rejected the root pod as expected"
 
-      - name: Partie 2 - Helm install, test, upgrade, rollback
+      - name: Part 2 - Helm install, test, upgrade, rollback
         run: |
           helm install demo chart/kubelab -n kubelab-helm --create-namespace --wait --timeout 3m
           helm test demo -n kubelab-helm --logs
@@ -86,7 +86,7 @@ jobs:
           helm rollback demo 1 -n kubelab-helm --wait
           helm get values demo -n kubelab-helm --all | head -20
 
-      - name: Partie 3 - scénarios de panne (on vérifie que chaque panne apparaît bien)
+      - name: Part 3 - failure scenarios (check that each failure shows up)
         run: |
           kubectl apply -f debug/00-namespace.yaml
           for f in debug/0[1-9]-*.yaml debug/10-*.yaml; do kubectl apply -f "$f"; done
@@ -101,7 +101,7 @@ jobs:
           kubectl apply -f debug/fixes/09-rbac.yaml
           kubectl auth can-i list pods --as=system:serviceaccount:debug:reader -n debug
 
-      - name: État final du cluster
+      - name: Final cluster state
         if: always()
         run: |
           kubectl get nodes -o wide
