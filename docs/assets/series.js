@@ -5,7 +5,7 @@
 
   var SERIES = [
     { id: "github", chip: "GH", color: "#2457D6", name: "GitHub Actions DevSecOps", url: "https://georgesmomo.github.io/devsecops-actions-lab/" },
-    { id: "gitlab", chip: "GL", color: "#6B3FC9", name: "GitLab CI/CD DevSecOps", url: "__GITLAB_PAGES_URL__" },
+    { id: "gitlab", chip: "GL", color: "#6B3FC9", name: "GitLab CI/CD DevSecOps", url: "https://devsecops-gitlab-lab-602e5f.gitlab.io/" },
     { id: "k8s", chip: "K8", color: "#0B7F86", name: "Kubernetes + Helm", url: "https://georgesmomo.github.io/k8s-helm-lab/" }
   ];
 

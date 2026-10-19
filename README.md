@@ -214,7 +214,7 @@ This lab is one of three free, hands-on courses that build on each other:
 | Course | Repository | Interactive course |
 |---|---|---|
 | **GitHub Actions DevSecOps**: secure CI/CD from the first workflow to signed images deployed on Kubernetes, GH-200 prep | [georgesmomo/devsecops-actions-lab](https://github.com/georgesmomo/devsecops-actions-lab) | [Open the course](https://georgesmomo.github.io/devsecops-actions-lab/) |
-| **GitLab CI/CD DevSecOps**: the same supply chain with GitLab | [georges.momo.n8n/devsecops-gitlab-lab](https://gitlab.com/georges.momo.n8n/devsecops-gitlab-lab) | [Open the course](__GITLAB_PAGES_URL__) |
+| **GitLab CI/CD DevSecOps**: the same supply chain with GitLab | [georges.momo.n8n/devsecops-gitlab-lab](https://gitlab.com/georges.momo.n8n/devsecops-gitlab-lab) | [Open the course](https://devsecops-gitlab-lab-602e5f.gitlab.io/) |
 | **Kubernetes + Helm** (this one): run what those pipelines build | [georgesmomo/k8s-helm-lab](https://github.com/georgesmomo/k8s-helm-lab) | [Open the course](https://georgesmomo.github.io/k8s-helm-lab/) |
 
 ## Contributing
